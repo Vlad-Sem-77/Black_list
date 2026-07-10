@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Клетка на клетку</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root{
+    --paper:#FBF9F3;
+    --desk:#E4E0D6;
+    --grid-line: rgba(88,124,182,.38);
+    --margin-red:#D9505F;
+    --ink-blue:#28437A;
+    --ink-blue-fill: rgba(40,67,122,.30);
+    --ink-red:#A5273A;
+    --ink-red-fill: rgba(165,39,58,.30);
+    --graphite:#2B2B2B;
+    --muted:#8b8578;
+    --valid:#3E8E5A;
+    --invalid:#C23B3B;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--desk);
+    font-family:'Inter',sans-serif; color:var(--graphite); overscroll-behavior:none;
+    height:100%; overflow:hidden;}
+  #app{
+    height: var(--app-height, 100vh);
+    height: var(--app-height, 100dvh);
+    display:flex;flex-direction:column;align-items:center;
+    padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+             max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+    gap:6px; width:100%; max-width:760px; margin:0 auto;
+  }
+
+  h1{font-family:'Kalam',cursive;font-size:clamp(16px,4.8vw,26px);font-weight:700;
+     margin:0; transform:rotate(-1deg); color:var(--graphite); text-align:center;
+     flex:0 0 auto; line-height:1.1;}
+  h1 span{color:var(--margin-red);}
+  .sub{font-family:'Kalam',cursive;font-size:clamp(10px,2.6vw,13px);color:var(--muted);
+     margin:0;text-align:center;flex:0 0 auto;line-height:1.2;}
+
+  /* ---------- MENU ---------- */
+  #menu{background:var(--paper); border-radius:4px; padding:22px 18px; width:100%; max-width:420px;
+        box-shadow:0 8px 20px rgba(60,50,40,.25); transform:rotate(0.3deg);
+        margin:auto; overflow-y:auto; max-height:100%;}
+  .modebtn{display:block;width:100%;text-align:left;border:2px solid var(--graphite);background:#fff;
+        border-radius:8px;padding:14px 16px;margin-bottom:12px;font-family:'Inter';font-weight:700;
+        font-size:16px;cursor:pointer;transition:transform .1s;}
+  .modebtn:active{transform:scale(.97);}
+  .modebtn small{display:block;font-weight:400;color:var(--muted);margin-top:3px;font-size:12.5px;}
+  .modebtn.blue{border-color:var(--ink-blue);color:var(--ink-blue);}
+  .modebtn.red{border-color:var(--ink-red);color:var(--ink-red);}
+  .note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px;font-family:'Inter';}
+
+  /* ---------- GAME ---------- */
+  #game{display:none;width:100%;flex:1;min-height:0;flex-direction:column;align-items:center;gap:4px;}
+  #turnbar{width:100%;display:flex;justify-content:space-between;align-items:center;
+      font-family:'Kalam';font-size:clamp(13px,3.6vw,17px);padding:0 4px;flex:0 0 auto;}
+  .whoTurn{font-weight:700;padding:2px 9px;border-radius:6px;white-space:nowrap;}
+  .whoTurn.p1{color:var(--ink-blue);background:var(--ink-blue-fill);}
+  .whoTurn.p2{color:var(--ink-red);background:var(--ink-red-fill);}
+
+  /* paper is pinned to the top of this area (align-items:flex-start) so it never
+     recenters/jumps when the status note below changes from one line to two */
+  #board-wrap{position:relative;background:var(--paper);border-radius:3px;
+      box-shadow:0 6px 18px rgba(60,50,40,.28); padding:6px; touch-action:none;
+      flex:1 1 auto; min-height:0; width:100%;
+      display:flex; align-items:flex-start; justify-content:center; overflow:hidden;}
+  #holes{position:absolute;left:2px;top:6px;bottom:6px;width:10px;display:flex;flex-direction:column;
+      justify-content:space-evenly;pointer-events:none;}
+  .hole{width:8px;height:8px;border-radius:50%;background:var(--desk);
+      box-shadow:inset 0 1px 2px rgba(0,0,0,.35);flex:0 0 auto;}
+  canvas{display:block;border-radius:2px;touch-action:none;}
+
+  #panel{width:100%;display:flex;gap:6px;align-items:center;justify-content:center;flex:0 0 auto;}
+  #dice{display:flex;gap:6px;align-items:center;flex-wrap:nowrap;width:100%;justify-content:center;}
+  #die1,#die2{width:clamp(30px,8vw,46px);height:clamp(30px,8vw,46px);flex:0 0 auto;}
+  #scorebar{width:100%;height:12px;border-radius:6px;overflow:hidden;display:flex;
+      border:1.5px solid var(--graphite);background:#fff;flex:0 0 auto;}
+  #score-p1{background:var(--ink-blue);}
+  #score-p2{background:var(--ink-red);}
+  #scoretext{width:100%;display:flex;justify-content:space-between;font-size:12px;font-weight:600;padding:0 2px;}
+
+  .btn{font-family:'Inter';font-weight:700;font-size:clamp(11px,2.8vw,14px);border:2px solid var(--graphite);
+     background:#fff;border-radius:8px;padding:8px 10px;cursor:pointer;white-space:nowrap;flex:0 1 auto;}
+  .btn:active{transform:scale(.96);}
+  .btn:disabled{opacity:.35;cursor:default;}
+  .btn.primary{background:var(--valid);color:#fff;border-color:var(--valid);}
+  .btn.ghost{background:transparent;}
+  .btn.iconbtn{flex:0 0 auto;width:clamp(30px,8vw,46px);height:clamp(30px,8vw,46px);
+     padding:0;display:flex;align-items:center;justify-content:center;
+     font-size:clamp(16px,4.5vw,22px);line-height:1;}
+
+  /* fixed height regardless of one- or two-line message, so the board above never shifts */
+  #status{font-family:'Kalam';font-size:clamp(12px,3.2vw,15px);text-align:center;
+     color:var(--muted);flex:0 0 auto;height:2.6em;line-height:1.3;
+     display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0 6px;}
+  #scorewrap{width:100%;flex:0 0 auto;}
+
+  #overlay{display:none;position:fixed;inset:0;background:rgba(30,26,20,.55);
+      align-items:center;justify-content:center;z-index:20;padding:16px;}
+  #overlay .card{background:var(--paper);border-radius:6px;padding:26px 22px;max-width:360px;
+      width:100%;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:rotate(-0.6deg);}
+  #overlay h2{font-family:'Kalam';font-size:28px;margin:0 0 10px 0;}
+  #overlay p{font-size:14px;margin:4px 0;}
+  #restartBtn{margin-top:16px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>Клетка <span>на</span> клетку</h1>
+  <p class="sub" id="subtitle">игра для тетрадного листа в клеточку</p>
+
+  <div id="menu">
+    <button class="modebtn blue" data-mode="ai">🤖 Против компьютера
+      <small>вы — синий, начинаете справа-снизу</small>
+    </button>
+    <button class="modebtn red" data-mode="hotseat">🧑‍🤝‍🧑 Один на один
+      <small>по очереди на одном устройстве</small>
+    </button>
+    <p class="note">Настоящую игру по Bluetooth/Wi-Fi между двумя телефонами тут не сделать — окно артефакта
+    не умеет соединять два устройства напрямую. Зато можно играть на одном экране по очереди, либо против компьютера.</p>
+  </div>
+
+  <div id="game">
+    <div id="turnbar">
+      <span id="turnLabel" class="whoTurn p1">Ход: Игрок 1</span>
+      <span id="roundLabel" style="color:var(--muted);font-size:13px;"></span>
+    </div>
+
+    <div id="board-wrap">
+      <div id="holes"></div>
+      <canvas id="board"></canvas>
+    </div>
+
+    <div id="status"></div>
+
+    <div id="panel">
+      <div id="dice">
+        <canvas id="die1" width="52" height="52"></canvas>
+        <canvas id="die2" width="52" height="52"></canvas>
+        <button class="btn" id="rollBtn">🎲 Бросить</button>
+        <button class="btn iconbtn" id="rotBtn" style="display:none;" aria-label="Повернуть" title="Повернуть">↻</button>
+        <button class="btn primary" id="confirmBtn" style="display:none;">✓ Поставить</button>
+      </div>
+    </div>
+
+    <div id="scorewrap">
+      <div id="scorebar"><div id="score-p1" style="width:0%"></div><div id="score-p2" style="width:0%"></div></div>
+      <div id="scoretext">
+        <span id="scoretxt-p1" style="color:var(--ink-blue)"></span>
+        <span id="scoretxt-p2" style="color:var(--ink-red)"></span>
+      </div>
+    </div>
+    <button class="btn ghost" id="giveupBtn" style="font-size:11px;flex:0 0 auto;">завершить партию</button>
+  </div>
+</div>
+
+<div id="overlay">
+  <div class="card">
+    <h2 id="overTitle">Партия окончена</h2>
+    <p id="overScore"></p>
+    <p id="overWinner" style="font-weight:700;"></p>
+    <button class="btn primary" id="restartBtn">Сыграть ещё раз</button>
+  </div>
+</div>
+
+<div id="debugBanner" style="display:none;position:fixed;left:8px;right:8px;top:8px;z-index:999;
+    background:#C23B3B;color:#fff;font-family:monospace;font-size:12px;padding:10px 12px;
+    border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.4);"></div>
+
+<script>
+window.addEventListener('error', function(e){
+  var b = document.getElementById('debugBanner');
+  if(!b) return;
+  b.style.display = 'block';
+  b.textContent = 'JS-ошибка: ' + e.message + ' (строка ' + e.lineno + ') — нажмите, чтобы скрыть';
+  b.onclick = function(){ b.style.display='none'; };
+});
+</script>
+
+<script>
+(function(){
+  // Стандартный тетрадный лист — 40 клеток в длину, 34 в ширину (1360 клеток).
+  // На телефоне это слишком много для одного экрана, поэтому берём ровно 1/4 листа
+  // с теми же пропорциями: 20×17 (340 клеток) — половина каждой стороны.
+  const FULL_SHEET = { rows:40, cols:34 };
+  const QUARTER_SHEET = { rows:20, cols:17 };
+  const DESKTOP_MIN_WIDTH = 700, DESKTOP_MIN_HEIGHT = 480;
+  let ROWS, COLS, home;
+  function chooseGridSize(){
+    const desktop = window.innerWidth >= DESKTOP_MIN_WIDTH && window.innerHeight >= DESKTOP_MIN_HEIGHT;
+    const size = desktop ? FULL_SHEET : QUARTER_SHEET;
+    ROWS = size.rows; COLS = size.cols;
+    home = { 1:{r:ROWS-1,c:COLS-1}, 2:{r:0,c:0} };
+    const sub = document.getElementById('subtitle');
+    if(sub){
+      sub.textContent = desktop
+        ? `целый тетрадный лист — ${COLS}×${ROWS} клеток`
+        : `¼ листа для экрана телефона — ${COLS}×${ROWS} клеток`;
+    }
+  }
+  chooseGridSize();
+
+  let cellSize = 30;
+  const canvas = document.getElementById('board');
+  const ctx = canvas.getContext('2d');
+  const wrap = document.getElementById('board-wrap');
+
+  let grid; // 0 empty, 1 = p1, 2 = p2
+  let cellNoise; // per-cell alpha variance for hand-inked feel
+  let hasTerritory;
+  let score;
+  let mode = 'ai'; // 'ai' | 'hotseat'
+  let current = 1;
+  let roll = null; // {a,b,w,h}
+  let preview = null; // {r0,c0,w,h,valid}
+  let skipStreak = 0;
+  let gameOver = false;
+  let round = 1;
+
+  function resetState(){
+    grid = Array.from({length:ROWS},()=>new Array(COLS).fill(0));
+    cellNoise = Array.from({length:ROWS},()=>new Array(COLS).fill(0).map(()=>Math.random()));
+    hasTerritory = {1:false,2:false};
+    score = {1:0,2:0};
+    current = 1;
+    roll = null;
+    preview = null;
+    skipStreak = 0;
+    gameOver = false;
+    round = 1;
+  }
+
+  // ---------- Telegram Mini App integration ----------
+  let tg = null;
+  try{
+    if(window.Telegram && window.Telegram.WebApp){
+      tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.expand();
+      if(tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+      if(tg.setBackgroundColor) tg.setBackgroundColor('#E4E0D6');
+      if(tg.setHeaderColor) try{ tg.setHeaderColor('#E4E0D6'); }catch(e){}
+    }
+  }catch(e){ console.warn('Telegram WebApp init skipped', e); }
+
+  // real viewport height (mobile browser chrome / Telegram viewport aware)
+  function setAppHeight(){
+    const h = (tg && tg.viewportStableHeight) ? tg.viewportStableHeight : window.innerHeight;
+    document.documentElement.style.setProperty('--app-height', h+'px');
+  }
+  setAppHeight();
+  window.addEventListener('resize', setAppHeight);
+  window.addEventListener('orientationchange', ()=>setTimeout(setAppHeight,150));
+  if(tg && tg.onEvent){ try{ tg.onEvent('viewportChanged', setAppHeight); }catch(e){} }
+
+  // ---------- responsive sizing ----------
+  function fitCanvas(){
+    setAppHeight();
+    // let layout settle (flex box gives board-wrap its real size), then measure it
+    requestAnimationFrame(()=>{
+      const availW = Math.max(60, wrap.clientWidth - 12);
+      const availH = Math.max(60, wrap.clientHeight - 12);
+      cellSize = Math.floor(Math.min(availW/COLS, availH/ROWS));
+      cellSize = Math.max(10, Math.min(cellSize, 42));
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(COLS*cellSize*dpr);
+      canvas.height = Math.round(ROWS*cellSize*dpr);
+      canvas.style.width = (COLS*cellSize)+'px';
+      canvas.style.height = (ROWS*cellSize)+'px';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      buildHoles();
+      draw();
+    });
+  }
+  function buildHoles(){
+    const holes = document.getElementById('holes');
+    if(!holes) return;
+    holes.style.height = (ROWS*cellSize)+'px';
+    holes.innerHTML='';
+    const n = Math.max(4, Math.round(ROWS*cellSize/40));
+    for(let i=0;i<n;i++){ const d=document.createElement('div'); d.className='hole'; holes.appendChild(d);}
+  }
+  window.addEventListener('resize', fitCanvas);
+  window.addEventListener('orientationchange', ()=>setTimeout(fitCanvas,150));
+
+  // ---------- drawing ----------
+  function draw(){
+    const W = COLS*cellSize, H = ROWS*cellSize;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#FBF9F3';
+    ctx.fillRect(0,0,W,H);
+
+    // filled territory
+    for(let r=0;r<ROWS;r++){
+      for(let c=0;c<COLS;c++){
+        const v = grid[r][c];
+        if(v){
+          const noise = cellNoise[r][c];
+          const base = v===1 ? [40,67,122] : [165,39,58];
+          const alpha = 0.22 + noise*0.14;
+          ctx.fillStyle = `rgba(${base[0]},${base[1]},${base[2]},${alpha})`;
+          ctx.fillRect(c*cellSize, r*cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    // grid lines
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid-line');
+    ctx.lineWidth = 1;
+    for(let c=0;c<=COLS;c++){
+      ctx.beginPath(); ctx.moveTo(c*cellSize+0.5,0); ctx.lineTo(c*cellSize+0.5,H); ctx.stroke();
+    }
+    for(let r=0;r<=ROWS;r++){
+      ctx.beginPath(); ctx.moveTo(0,r*cellSize+0.5); ctx.lineTo(W,r*cellSize+0.5); ctx.stroke();
+    }
+
+    // margin line (decorative, like a notebook page)
+    ctx.strokeStyle = '#D9505F55';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(cellSize*1.4,0); ctx.lineTo(cellSize*1.4,H); ctx.stroke();
+
+    // home corner markers
+    drawHomeMark(home[1].r, home[1].c, '#28437A');
+    drawHomeMark(home[2].r, home[2].c, '#A5273A');
+
+    // preview
+    if(preview){
+      const {r0,c0,w,h,valid} = preview;
+      ctx.strokeStyle = valid ? '#3E8E5A' : '#C23B3B';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([6,4]);
+      ctx.strokeRect(c0*cellSize+1.5, r0*cellSize+1.5, w*cellSize-3, h*cellSize-3);
+      ctx.setLineDash([]);
+      ctx.fillStyle = valid ? 'rgba(62,142,90,.18)' : 'rgba(194,59,59,.18)';
+      ctx.fillRect(c0*cellSize, r0*cellSize, w*cellSize, h*cellSize);
+    }
+  }
+  function drawHomeMark(r,c,color){
+    const x = c*cellSize+cellSize/2, y = r*cellSize+cellSize/2;
+    ctx.beginPath();
+    ctx.arc(x,y,Math.max(3,cellSize*0.12),0,Math.PI*2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  // ---------- dice ----------
+  const diePipMap = {
+    1:[[1,1]],
+    2:[[0,0],[2,2]],
+    3:[[0,0],[1,1],[2,2]],
+    4:[[0,0],[0,2],[2,0],[2,2]],
+    5:[[0,0],[0,2],[1,1],[2,0],[2,2]],
+    6:[[0,0],[1,0],[2,0],[0,2],[1,2],[2,2]]
+  };
+  function drawDie(id,val,color){
+    const c = document.getElementById(id);
+    const g = c.getContext('2d');
+    const s = c.width;
+    g.clearRect(0,0,s,s);
+    g.fillStyle = '#fff';
+    g.strokeStyle = color; g.lineWidth = 3;
+    roundRect(g,3,3,s-6,s-6,8); g.fill(); g.stroke();
+    if(!val) return;
+    const pts = diePipMap[val];
+    const pad = s*0.22, step = (s - pad*2)/2;
+    g.fillStyle = color;
+    pts.forEach(([px,py])=>{
+      const x = pad + px*step, y = pad + py*step;
+      g.beginPath(); g.arc(x,y,s*0.075,0,Math.PI*2); g.fill();
+    });
+  }
+  function roundRect(g,x,y,w,h,r){
+    g.beginPath();
+    g.moveTo(x+r,y);
+    g.arcTo(x+w,y,x+w,y+h,r);
+    g.arcTo(x+w,y+h,x,y+h,r);
+    g.arcTo(x,y+h,x,y,r);
+    g.arcTo(x,y,x+w,y,r);
+    g.closePath();
+  }
+  drawDie('die1',0,'#999'); drawDie('die2',0,'#999');
+
+  // ---------- rules ----------
+  function inBounds(r0,c0,w,h){ return r0>=0 && c0>=0 && r0+h<=ROWS && c0+w<=COLS; }
+  function cellsFree(r0,c0,w,h){
+    for(let r=r0;r<r0+h;r++) for(let c=c0;c<c0+w;c++) if(grid[r][c]!==0) return false;
+    return true;
+  }
+  function rectContains(r0,c0,w,h,r,c){ return r>=r0 && r<r0+h && c>=c0 && c<c0+w; }
+  function touchesOwn(player,r0,c0,w,h){
+    for(let r=r0;r<r0+h;r++){
+      for(let c=c0;c<c0+w;c++){
+        const neigh = [[r-1,c],[r+1,c],[r,c-1],[r,c+1]];
+        for(const [nr,nc] of neigh){
+          if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&grid[nr][nc]===player) return true;
+        }
+      }
+    }
+    return false;
+  }
+  function isValidPlacement(player,r0,c0,w,h){
+    if(!inBounds(r0,c0,w,h)) return false;
+    if(!cellsFree(r0,c0,w,h)) return false;
+    if(!hasTerritory[player]) return rectContains(r0,c0,w,h,home[player].r,home[player].c);
+    return touchesOwn(player,r0,c0,w,h);
+  }
+  function findAnyValidPlacement(player,a,b){
+    const orients = a===b ? [[a,b]] : [[a,b],[b,a]];
+    const candidates = [];
+    for(const [w,h] of orients){
+      for(let r0=0;r0<=ROWS-h;r0++){
+        for(let c0=0;c0<=COLS-w;c0++){
+          if(isValidPlacement(player,r0,c0,w,h)) candidates.push({r0,c0,w,h});
+        }
+      }
+    }
+    return candidates;
+  }
+  function place(player,r0,c0,w,h){
+    for(let r=r0;r<r0+h;r++) for(let c=c0;c<c0+w;c++) grid[r][c]=player;
+    hasTerritory[player]=true;
+    score[player]+=w*h;
+  }
+
+  // ---------- UI flow ----------
+  const turnLabel = document.getElementById('turnLabel');
+  const roundLabel = document.getElementById('roundLabel');
+  const statusEl = document.getElementById('status');
+  const rollBtn = document.getElementById('rollBtn');
+  const rotBtn = document.getElementById('rotBtn');
+  const confirmBtn = document.getElementById('confirmBtn');
+  const giveupBtn = document.getElementById('giveupBtn');
+
+  function playerName(p){
+    if(mode==='ai') return p===1 ? 'Вы' : 'Компьютер';
+    return p===1 ? 'Игрок 1' : 'Игрок 2';
+  }
+
+  function updateTurnBar(){
+    turnLabel.textContent = 'Ход: ' + playerName(current);
+    turnLabel.className = 'whoTurn ' + (current===1?'p1':'p2');
+    roundLabel.textContent = 'раунд ' + round;
+  }
+  function updateScore(){
+    const total = ROWS*COLS;
+    document.getElementById('score-p1').style.width = (score[1]/total*100)+'%';
+    document.getElementById('score-p2').style.width = (score[2]/total*100)+'%';
+    document.getElementById('scoretxt-p1').textContent = playerName(1)+': '+score[1];
+    document.getElementById('scoretxt-p2').textContent = playerName(2)+': '+score[2];
+  }
+
+  function startTurn(){
+    updateTurnBar();
+    roll = null; preview = null;
+    rotBtn.style.display='none'; confirmBtn.style.display='none';
+    rollBtn.disabled=false;
+    drawDie('die1',0, current===1?'#28437A':'#A5273A');
+    drawDie('die2',0, current===1?'#28437A':'#A5273A');
+    statusEl.textContent = playerName(current)+', бросайте кубики';
+    draw();
+    if(mode==='ai' && current===2){
+      rollBtn.disabled = true;
+      setTimeout(doRoll, 500);
+    }
+  }
+
+  function doRoll(){
+    const a = 1+Math.floor(Math.random()*6);
+    const b = 1+Math.floor(Math.random()*6);
+    const color = current===1?'#28437A':'#A5273A';
+    drawDie('die1',a,color); drawDie('die2',b,color);
+    roll = {a,b,w:a,h:b};
+    rollBtn.disabled = true;
+
+    const candidates = findAnyValidPlacement(current,a,b);
+    if(candidates.length===0){
+      statusEl.textContent = `Выпало ${a} и ${b} — прямоугольник ${a}×${b} никуда не помещается. Пропуск хода!`;
+      skipStreak++;
+      setTimeout(endTurn, 1300);
+      return;
+    }
+    skipStreak = 0;
+    if(mode==='ai' && current===2){
+      statusEl.textContent = 'Компьютер думает...';
+      setTimeout(()=>aiPlace(candidates), 550);
+    } else {
+      statusEl.textContent = `Выпало ${a} и ${b}. Прижмите палец к листу и потяните — прямоугольник поедет за пальцем.`;
+      if(a!==b) rotBtn.style.display='inline-block';
+      preview = null;
+    }
+  }
+
+  function aiPlace(candidates){
+    // heuristic: maximize adjacency to own cells, tie-break closer to own home
+    let best=null,bestScore=-1;
+    for(const cand of candidates){
+      let adj=0;
+      for(let r=cand.r0;r<cand.r0+cand.h;r++) for(let c=cand.c0;c<cand.c0+cand.w;c++){
+        [[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([nr,nc])=>{
+          if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&grid[nr][nc]===2) adj++;
+        });
+      }
+      const distToHome = Math.abs(cand.r0-home[2].r)+Math.abs(cand.c0-home[2].c);
+      const s = adj*10 - distToHome*0.3 + Math.random();
+      if(s>bestScore){bestScore=s;best=cand;}
+    }
+    place(2,best.r0,best.c0,best.w,best.h);
+    statusEl.textContent = 'Компьютер поставил '+best.w+'×'+best.h;
+    updateScore(); draw();
+    setTimeout(endTurn, 700);
+  }
+
+  function endTurn(){
+    updateScore();
+    if(score[1]+score[2] === ROWS*COLS){ return finish(); }
+    if(skipStreak>=2){ return finish(); }
+    current = current===1?2:1;
+    if(current===1) round++;
+    if(gameOver) return;
+    startTurn();
+  }
+
+  function finish(){
+    gameOver = true;
+    const overlay = document.getElementById('overlay');
+    document.getElementById('overScore').textContent =
+      `${playerName(1)}: ${score[1]} клеток   ·   ${playerName(2)}: ${score[2]} клеток`;
+    let winnerTxt;
+    if(score[1]>score[2]) winnerTxt = '🏆 Побеждает '+playerName(1)+'!';
+    else if(score[2]>score[1]) winnerTxt = '🏆 Побеждает '+playerName(2)+'!';
+    else winnerTxt = '🤝 Ничья!';
+    document.getElementById('overWinner').textContent = winnerTxt;
+    overlay.style.display='flex';
+  }
+
+  // ---------- input ----------
+  rollBtn.addEventListener('click', ()=>{ if(!rollBtn.disabled) doRoll(); });
+
+  rotBtn.addEventListener('click', ()=>{
+    if(!roll) return;
+    const t = roll.w; roll.w = roll.h; roll.h = t;
+    if(preview){
+      preview.w = roll.w; preview.h = roll.h;
+      // re-clamp: the new orientation may no longer fit at the old anchor point
+      preview.r0 = Math.min(Math.max(preview.r0,0), ROWS-preview.h);
+      preview.c0 = Math.min(Math.max(preview.c0,0), COLS-preview.w);
+      preview.valid = isValidPlacement(current, preview.r0, preview.c0, preview.w, preview.h);
+      confirmBtn.style.display = preview.valid ? 'inline-block':'none';
+      draw();
+    }
+  });
+
+  function cellFromPoint(clientX, clientY){
+    const rect = canvas.getBoundingClientRect();
+    if(typeof clientX !== 'number' || typeof clientY !== 'number' || !cellSize) return null;
+    const cx = clientX - rect.left, cy = clientY - rect.top;
+    return { col: cx/cellSize, row: cy/cellSize };
+  }
+
+  let dragging = false;
+  let activePointerId = null;
+
+  function updatePreviewAt(clientX, clientY){
+    const pt = cellFromPoint(clientX, clientY);
+    if(!pt) return;
+    const w = roll.w, h = roll.h;
+    // rectangle is centered under the finger/cursor, not anchored by its corner
+    let r0 = Math.round(pt.row - h/2);
+    let c0 = Math.round(pt.col - w/2);
+    r0 = Math.min(Math.max(r0,0), ROWS-h);
+    c0 = Math.min(Math.max(c0,0), COLS-w);
+    const valid = isValidPlacement(current, r0, c0, w, h);
+    preview = {r0,c0,w,h,valid};
+    confirmBtn.style.display = valid ? 'inline-block' : 'none';
+    statusEl.textContent = valid ? 'Годится! Отпустите здесь и нажмите «Поставить», либо продолжайте водить пальцем.'
+                                  : 'Сюда нельзя: должно прилегать к вашей территории и не пересекаться.';
+    draw();
+  }
+
+  function canAct(){ return roll && !gameOver && !(mode==='ai' && current===2); }
+
+  canvas.addEventListener('pointerdown', evt=>{
+    if(!canAct()) return;
+    evt.preventDefault();
+    dragging = true;
+    activePointerId = evt.pointerId;
+    try{ canvas.setPointerCapture(evt.pointerId); }catch(e){}
+    updatePreviewAt(evt.clientX, evt.clientY);
+  });
+  canvas.addEventListener('pointermove', evt=>{
+    if(!dragging || evt.pointerId!==activePointerId) return;
+    evt.preventDefault();
+    updatePreviewAt(evt.clientX, evt.clientY);
+  });
+  function endDrag(evt){
+    if(!dragging) return;
+    if(evt && evt.pointerId!==undefined && evt.pointerId!==activePointerId) return;
+    dragging = false;
+    activePointerId = null;
+  }
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+
+  confirmBtn.addEventListener('click', ()=>{
+    if(!preview || !preview.valid) return;
+    place(current, preview.r0, preview.c0, preview.w, preview.h);
+    preview = null; roll = null;
+    confirmBtn.style.display='none'; rotBtn.style.display='none';
+    draw(); updateScore();
+    setTimeout(endTurn, 250);
+  });
+
+  giveupBtn.addEventListener('click', ()=>{ if(!gameOver) finish(); });
+  document.getElementById('restartBtn').addEventListener('click', ()=>{
+    document.getElementById('overlay').style.display='none';
+    chooseGridSize();
+    resetState();
+    fitCanvas();
+    startTurn();
+  });
+
+  // ---------- menu ----------
+  document.querySelectorAll('.modebtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      mode = btn.dataset.mode;
+      document.getElementById('menu').style.display='none';
+      document.getElementById('game').style.display='flex';
+      chooseGridSize();
+      resetState();
+      fitCanvas();
+      startTurn();
+    });
+  });
+
+  fitCanvas();
+})();
+</script>
+</body>
+</html>
