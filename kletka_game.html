@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Клетка на клетку</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<title>Красные флажки</title>
+<!-- шрифты не грузятся из сети: используем системные handwriting/UI-шрифты, чтобы игра работала офлайн -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root{
+    --font-hand: 'Kalam','Segoe Print','Bradley Hand','Comic Sans MS',cursive;
+    --font-ui: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
     --paper:#FBF9F3;
     --desk:#E4E0D6;
     --grid-line: rgba(88,124,182,.38);
@@ -24,7 +25,7 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;background:var(--desk);
-    font-family:'Inter',sans-serif; color:var(--graphite); overscroll-behavior:none;
+    font-family:var(--font-ui); color:var(--graphite); overscroll-behavior:none;
     height:100%; overflow:hidden;}
   #app{
     height: var(--app-height, 100vh);
@@ -35,11 +36,11 @@
     gap:6px; width:100%; max-width:760px; margin:0 auto;
   }
 
-  h1{font-family:'Kalam',cursive;font-size:clamp(16px,4.8vw,26px);font-weight:700;
+  h1{font-family:var(--font-hand);font-size:clamp(16px,4.8vw,26px);font-weight:700;
      margin:0; transform:rotate(-1deg); color:var(--graphite); text-align:center;
      flex:0 0 auto; line-height:1.1;}
   h1 span{color:var(--margin-red);}
-  .sub{font-family:'Kalam',cursive;font-size:clamp(10px,2.6vw,13px);color:var(--muted);
+  .sub{font-family:var(--font-hand);font-size:clamp(10px,2.6vw,13px);color:var(--muted);
      margin:0;text-align:center;flex:0 0 auto;line-height:1.2;}
 
   /* ---------- MENU ---------- */
@@ -47,18 +48,18 @@
         box-shadow:0 8px 20px rgba(60,50,40,.25); transform:rotate(0.3deg);
         margin:auto; overflow-y:auto; max-height:100%;}
   .modebtn{display:block;width:100%;text-align:left;border:2px solid var(--graphite);background:#fff;
-        border-radius:8px;padding:14px 16px;margin-bottom:12px;font-family:'Inter';font-weight:700;
+        border-radius:8px;padding:14px 16px;margin-bottom:12px;font-family:var(--font-ui);font-weight:700;
         font-size:16px;cursor:pointer;transition:transform .1s;}
   .modebtn:active{transform:scale(.97);}
   .modebtn small{display:block;font-weight:400;color:var(--muted);margin-top:3px;font-size:12.5px;}
   .modebtn.blue{border-color:var(--ink-blue);color:var(--ink-blue);}
   .modebtn.red{border-color:var(--ink-red);color:var(--ink-red);}
-  .note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px;font-family:'Inter';}
+  .note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px;font-family:var(--font-ui);}
 
   /* ---------- GAME ---------- */
   #game{display:none;width:100%;flex:1;min-height:0;flex-direction:column;align-items:center;gap:4px;}
   #turnbar{width:100%;display:flex;justify-content:space-between;align-items:center;
-      font-family:'Kalam';font-size:clamp(13px,3.6vw,17px);padding:0 4px;flex:0 0 auto;}
+      font-family:var(--font-hand);font-size:clamp(13px,3.6vw,17px);padding:0 4px;flex:0 0 auto;}
   .whoTurn{font-weight:700;padding:2px 9px;border-radius:6px;white-space:nowrap;}
   .whoTurn.p1{color:var(--ink-blue);background:var(--ink-blue-fill);}
   .whoTurn.p2{color:var(--ink-red);background:var(--ink-red-fill);}
@@ -84,7 +85,7 @@
   #score-p2{background:var(--ink-red);}
   #scoretext{width:100%;display:flex;justify-content:space-between;font-size:12px;font-weight:600;padding:0 2px;}
 
-  .btn{font-family:'Inter';font-weight:700;font-size:clamp(11px,2.8vw,14px);border:2px solid var(--graphite);
+  .btn{font-family:var(--font-ui);font-weight:700;font-size:clamp(11px,2.8vw,14px);border:2px solid var(--graphite);
      background:#fff;border-radius:8px;padding:8px 10px;cursor:pointer;white-space:nowrap;flex:0 1 auto;}
   .btn:active{transform:scale(.96);}
   .btn:disabled{opacity:.35;cursor:default;}
@@ -95,7 +96,7 @@
      font-size:clamp(16px,4.5vw,22px);line-height:1;}
 
   /* fixed height regardless of one- or two-line message, so the board above never shifts */
-  #status{font-family:'Kalam';font-size:clamp(12px,3.2vw,15px);text-align:center;
+  #status{font-family:var(--font-hand);font-size:clamp(12px,3.2vw,15px);text-align:center;
      color:var(--muted);flex:0 0 auto;height:2.6em;line-height:1.3;
      display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0 6px;}
   #scorewrap{width:100%;flex:0 0 auto;}
@@ -104,15 +105,15 @@
       align-items:center;justify-content:center;z-index:20;padding:16px;}
   #overlay .card{background:var(--paper);border-radius:6px;padding:26px 22px;max-width:360px;
       width:100%;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:rotate(-0.6deg);}
-  #overlay h2{font-family:'Kalam';font-size:28px;margin:0 0 10px 0;}
+  #overlay h2{font-family:var(--font-hand);font-size:28px;margin:0 0 10px 0;}
   #overlay p{font-size:14px;margin:4px 0;}
   #restartBtn{margin-top:16px;}
 </style>
 </head>
 <body>
 <div id="app">
-  <h1>Клетка <span>на</span> клетку</h1>
-  <p class="sub" id="subtitle">игра для тетрадного листа в клеточку</p>
+  <h1>Красные <span>флажки</span></h1>
+  <p class="sub" id="subtitle">она же «клетка на клетку» — тетрадный лист в клеточку</p>
 
   <div id="menu">
     <button class="modebtn blue" data-mode="ai">🤖 Против компьютера
@@ -121,7 +122,8 @@
     <button class="modebtn red" data-mode="hotseat">🧑‍🤝‍🧑 Один на один
       <small>по очереди на одном устройстве</small>
     </button>
-    <p class="note">Можно играть на одном экране по очереди, либо против компьютера.</p>
+    <p class="note">Настоящую игру по Bluetooth/Wi-Fi между двумя телефонами тут не сделать — окно артефакта
+    не умеет соединять два устройства напрямую. Зато можно играть на одном экране по очереди, либо против компьютера.</p>
   </div>
 
   <div id="game">
@@ -173,10 +175,15 @@
 
 <script>
 window.addEventListener('error', function(e){
+  // ошибки из чужого скрипта telegram-web-app.js (например, когда страница
+  // открыта не внутри настоящего Telegram-клиента, или SDK асинхронно падает
+  // на своей внутренней проверке окружения) — не наша проблема, скрываем.
+  if(!e.filename || e.filename.indexOf('telegram') !== -1) return;
   var b = document.getElementById('debugBanner');
   if(!b) return;
   b.style.display = 'block';
-  b.textContent = 'JS-ошибка: ' + e.message + ' (строка ' + e.lineno + ') — нажмите, чтобы скрыть';
+  var src = e.filename.split('/').pop() || e.filename;
+  b.textContent = 'JS-ошибка: ' + e.message + '  [' + src + ':' + e.lineno + ':' + (e.colno||'?') + ']  — нажмите, чтобы скрыть';
   b.onclick = function(){ b.style.display='none'; };
 });
 </script>
