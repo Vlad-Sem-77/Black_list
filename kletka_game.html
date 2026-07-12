@@ -296,6 +296,7 @@ window.addEventListener('error', function(e){
 
   // ---------- drawing ----------
   function draw(){
+    if(!grid) return; // грид ещё не создан — рисовать нечего
     const W = COLS*cellSize, H = ROWS*cellSize;
     ctx.clearRect(0,0,W,H);
     ctx.fillStyle = '#FBF9F3';
@@ -643,6 +644,7 @@ window.addEventListener('error', function(e){
     });
   });
 
+  resetState(); // грид должен существовать ещё до первого draw() на загрузке страницы
   fitCanvas();
 })();
 </script>
