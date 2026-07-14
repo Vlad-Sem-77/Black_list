@@ -83,6 +83,64 @@ input#search:focus{border-color:var(--brass);}
   justify-content:space-between;
 }
 
+.eyebrow-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.game-btn{
+  font-size:20px;
+  line-height:1;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:2px 4px;
+  border-radius:6px;
+}
+.game-btn:hover{background:var(--paper-raised);}
+
+.game-modal-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(28,35,51,0.55);
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+}
+.game-modal-overlay.open{display:flex;}
+.game-modal-box{
+  width:94vw;
+  max-width:480px;
+  height:80vh;
+  background:var(--paper);
+  border-radius:8px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 10px 40px rgba(0,0,0,0.35);
+}
+.game-modal-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 14px;
+  border-bottom:1px solid var(--rule);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  color:var(--ink-soft);
+}
+.game-modal-close{
+  background:none;border:none;cursor:pointer;
+  font-size:18px;color:var(--ink-soft);
+  padding:2px 8px;
+}
+.game-modal-close:hover{color:var(--ink);}
+.game-modal-box iframe{
+  flex:1;border:none;width:100%;
+}
+
 /* ===== LIST VIEW ===== */
 #listView{flex:1;}
 ul#countryList{list-style:none;margin:0;padding:0;}
@@ -334,7 +392,10 @@ footer.app-footer{
   <!-- LIST VIEW -->
   <div id="listView">
     <header class="top">
-      <p class="eyebrow">Реестр · Compliance Lists</p>
+      <div class="eyebrow-row">
+  <p class="eyebrow">Реестр · Compliance Lists</p>
+  <button class="game-btn" onclick="openGame()" aria-label="Игра">🕹️</button>
+</div>
       <h1 class="title">Чёрные списки стран</h1>
       <p class="subtitle">Свод регуляторных перечней РФ: ФАТФ, офшоры, автообмен налоговой информацией, недружественные государства.</p>
       <div class="search-wrap">
@@ -662,5 +723,14 @@ window.addEventListener('popstate', (e) => {
 
 renderList('');
 </script>
+<div class="game-modal-overlay" id="gameModal">
+  <div class="game-modal-box">
+    <div class="game-modal-head">
+      <span>ИГРА</span>
+      <button class="game-modal-close" onclick="closeGame()">✕</button>
+    </div>
+    <iframe id="gameFrame" src="about:blank"></iframe>
+  </div>
+</div>
 </body>
 </html>
