@@ -693,6 +693,15 @@ function renderFullView(){
   window.scrollTo(0,0);
 }
 
+function openGame(){
+  document.getElementById('gameFrame').src = 'game.html';
+  document.getElementById('gameModal').classList.add('open');
+}
+function closeGame(){
+  document.getElementById('gameModal').classList.remove('open');
+  document.getElementById('gameFrame').src = 'about:blank';
+}
+
 // Back-button handlers use browser history so the Android system/gesture
 // back button steps through in-app screens instead of exiting the app.
 function showList(){ history.back(); }
