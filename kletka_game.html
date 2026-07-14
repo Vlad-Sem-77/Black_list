@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Красные флажки</title>
-<!-- шрифты не грузятся из сети: используем системные handwriting/UI-шрифты, чтобы игра работала офлайн -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
+  <head>
+    <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+        <title>Заблокируй Ормуз</title>
+        <!-- шрифты не грузятся из сети: используем системные handwriting/UI-шрифты, чтобы игра работала офлайн -->
+        <script src="https://telegram.org/js/telegram-web-app.js"></script>
+        <style>
   :root{
     --font-hand: 'Kalam','Segoe Print','Bradley Hand','Comic Sans MS',cursive;
     --font-ui: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
@@ -109,70 +109,79 @@
   #overlay p{font-size:14px;margin:4px 0;}
   #restartBtn{margin-top:16px;}
 </style>
-</head>
-<body>
-<div id="app">
-  <h1>Красные <span>флажки</span></h1>
-  <p class="sub" id="subtitle">она же «клетка на клетку» — тетрадный лист в клеточку</p>
-
-  <div id="menu">
-    <button class="modebtn blue" data-mode="ai">🤖 Против компьютера
-      <small>вы — синий, начинаете справа-снизу</small>
-    </button>
-    <button class="modebtn red" data-mode="hotseat">🧑‍🤝‍🧑 Один на один
-      <small>по очереди на одном устройстве</small>
-    </button>
-    <p class="note">Можно играть на одном экране по очереди, либо против компьютера.</p>
-  </div>
-
-  <div id="game">
-    <div id="turnbar">
-      <span id="turnLabel" class="whoTurn p1">Ход: Игрок 1</span>
-      <span id="roundLabel" style="color:var(--muted);font-size:13px;"></span>
-    </div>
-
-    <div id="board-wrap">
-      <div id="holes"></div>
-      <canvas id="board"></canvas>
-    </div>
-
-    <div id="status"></div>
-
-    <div id="panel">
-      <div id="dice">
-        <canvas id="die1" width="52" height="52"></canvas>
-        <canvas id="die2" width="52" height="52"></canvas>
-        <button class="btn" id="rollBtn">🎲 Бросить</button>
-        <button class="btn iconbtn" id="rotBtn" style="display:none;" aria-label="Повернуть" title="Повернуть">↻</button>
-        <button class="btn primary" id="confirmBtn" style="display:none;">✓ Поставить</button>
-      </div>
-    </div>
-
-    <div id="scorewrap">
-      <div id="scorebar"><div id="score-p1" style="width:0%"></div><div id="score-p2" style="width:0%"></div></div>
-      <div id="scoretext">
-        <span id="scoretxt-p1" style="color:var(--ink-blue)"></span>
-        <span id="scoretxt-p2" style="color:var(--ink-red)"></span>
-      </div>
-    </div>
-    <button class="btn ghost" id="giveupBtn" style="font-size:11px;flex:0 0 auto;">завершить партию</button>
-  </div>
-</div>
-
-<div id="overlay">
-  <div class="card">
-    <h2 id="overTitle">Партия окончена</h2>
-    <p id="overScore"></p>
-    <p id="overWinner" style="font-weight:700;"></p>
-    <button class="btn primary" id="restartBtn">Сыграть ещё раз</button>
-  </div>
-</div>
-
-<div id="debugBanner" style="display:none;position:fixed;left:8px;right:8px;top:8px;z-index:999;
-    background:#C23B3B;color:#fff;font-family:monospace;font-size:12px;padding:10px 12px;
-    border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.4);"></div>
-
-<script>
+      </head>
+      <body>
+        <div id="app">
+          <h1>Красные <span>флажки</span>
+        </h1>
+        <p class="sub" id="subtitle">она же «клетка на клетку» — тетрадный лист в клеточку</p>
+        <div id="menu">
+          <button class="modebtn blue" data-mode="ai">🤖 Против компьютера
+            <small>вы — синий, начинаете справа-снизу</small>
+          </button>
+          <button class="modebtn red" data-mode="hotseat">🧑‍🤝‍🧑 Один на один
+            <small>по очереди на одном устройстве</small>
+          </button>
+          <p class="note">Настоящую игру по Bluetooth/Wi-Fi между двумя телефонами тут не сделать — окно артефакта
+            не умеет соединять два устройства напрямую. Зато можно играть на одном экране по очереди, либо против компьютера.</p>
+          </div>
+          <div id="game">
+            <div id="turnbar">
+              <span id="turnLabel" class="whoTurn p1">Ход: Игрок 1</span>
+              <span id="roundLabel" style="color:var(--muted);font-size:13px;">
+              </span>
+            </div>
+            <div id="board-wrap">
+              <div id="holes">
+              </div>
+              <canvas id="board">
+              </canvas>
+            </div>
+            <div id="status">
+            </div>
+            <div id="panel">
+              <div id="dice">
+                <canvas id="die1" width="52" height="52">
+                </canvas>
+                <canvas id="die2" width="52" height="52">
+                </canvas>
+                <button class="btn" id="rollBtn">🎲 Бросить</button>
+                <button class="btn iconbtn" id="rotBtn" style="display:none;" aria-label="Повернуть" title="Повернуть">↻</button>
+                <button class="btn primary" id="confirmBtn" style="display:none;">✓ Поставить</button>
+              </div>
+            </div>
+            <div id="scorewrap">
+              <div id="scorebar">
+                <div id="score-p1" style="width:0%">
+                </div>
+                <div id="score-p2" style="width:0%">
+                </div>
+              </div>
+              <div id="scoretext">
+                <span id="scoretxt-p1" style="color:var(--ink-blue)">
+                </span>
+                <span id="scoretxt-p2" style="color:var(--ink-red)">
+                </span>
+              </div>
+            </div>
+            <button class="btn ghost" id="giveupBtn" style="font-size:11px;flex:0 0 auto;">завершить партию</button>
+          </div>
+        </div>
+        <div id="overlay">
+          <div class="card">
+            <h2 id="overTitle">Партия окончена</h2>
+            <p id="overScore">
+            </p>
+            <p id="overWinner" style="font-weight:700;">
+            </p>
+            <button class="btn primary" id="restartBtn">Сыграть ещё раз</button>
+          </div>
+        </div>
+        <div id="debugBanner" style="display:none;position:fixed;left:8px;right:8px;top:8px;z-index:999;
+          background:#C23B3B;color:#fff;font-family:monospace;font-size:12px;padding:10px 12px;
+          border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.4);">
+        </div>
+        <script>
 window.addEventListener('error', function(e){
   // ошибки из чужого скрипта telegram-web-app.js (например, когда страница
   // открыта не внутри настоящего Telegram-клиента, или SDK асинхронно падает
@@ -186,8 +195,7 @@ window.addEventListener('error', function(e){
   b.onclick = function(){ b.style.display='none'; };
 });
 </script>
-
-<script>
+        <script>
 (function(){
   // Стандартный тетрадный лист — 40 клеток в длину, 34 в ширину (1360 клеток).
   // На телефоне это слишком много для одного экрана, поэтому берём ровно 1/4 листа
@@ -214,6 +222,8 @@ window.addEventListener('error', function(e){
   const canvas = document.getElementById('board');
   const ctx = canvas.getContext('2d');
   const wrap = document.getElementById('board-wrap');
+  const bgCanvas = document.createElement('canvas'); // офскрин: набросок пролива рисуется сюда один раз
+  const bgCtx = bgCanvas.getContext('2d');
 
   let grid; // 0 empty, 1 = p1, 2 = p2
   let cellNoise; // per-cell alpha variance for hand-inked feel
@@ -278,6 +288,12 @@ window.addEventListener('error', function(e){
       canvas.style.width = (COLS*cellSize)+'px';
       canvas.style.height = (ROWS*cellSize)+'px';
       ctx.setTransform(dpr,0,0,dpr,0,0);
+
+      bgCanvas.width = Math.round(COLS*cellSize*dpr);
+      bgCanvas.height = Math.round(ROWS*cellSize*dpr);
+      bgCtx.setTransform(dpr,0,0,dpr,0,0);
+      renderHormuzBackground(bgCtx); // тяжёлый рисунок — считаем один раз тут, а не в каждом draw()
+
       buildHoles();
       draw();
     });
@@ -293,6 +309,81 @@ window.addEventListener('error', function(e){
   window.addEventListener('resize', fitCanvas);
   window.addEventListener('orientationchange', ()=>setTimeout(fitCanvas,150));
 
+  // ---------- фоновый набросок: Ормузский пролив, бледным карандашом ----------
+  // координаты заданы в "четвертных" клетках листа (17×20); на полном листе (34×40)
+  // масштабируются вдвое вместе с сеткой, чтобы силуэт оставался тем же.
+  const HORMUZ_IRAN   = [[0,0],[17,0],[17,4],[15,5],[13,6],[12,7],[11,8],[10.3,8.6],
+                          [9.5,8.1],[8.4,7.2],[7.2,6.1],[5.3,4.6],[3,3],[1,1],[0,0]];
+  const HORMUZ_ARABIA = [[0,20],[0,17],[2,16],[4,15],[6,14],[8,13],[9,12],[9.3,10.4],
+                          [9.8,9.4],[10.3,9.6],[10.7,10.5],[11,12],[13,13.4],[15,15],
+                          [17,16],[17,20],[0,20]];
+  const HORMUZ_STRAIT = [[2,5.5],[4,6.5],[6,7.5],[8,8.3],[9.6,8.8],[11,9.5],[13,10.7],
+                          [15,12.1],[17,13.1],[17,14.1],[15,13.1],[13,11.7],[11,10.5],
+                          [9.6,9.6],[8,9.2],[6,8.5],[4,7.5],[2,6.5]];
+  const HORMUZ_ISLANDS = [
+    {x:8.3,y:9.6, rx:22,ry:8, rot:-0.3},   // Кешм
+    {x:10.1,y:10.5, rx:6,ry:6, rot:0}       // Хормоз
+  ];
+
+  function renderHormuzBackground(targetCtx){
+    const scale = COLS/17; // 1 на телефоне (17×20), 2 на десктопе (34×40)
+    const unit = scale*cellSize/20; // масштаб "сырых" пиксельных величин эскиза (радиусы, толщина, шаг штриховки)
+    const px = x => x*scale*cellSize;
+    const py = y => y*scale*cellSize;
+    const toPx = pts => pts.map(([x,y]) => [px(x), py(y)]);
+    const W = COLS*cellSize, H = ROWS*cellSize;
+
+    function land(points, fillColor, strokeColor){
+      targetCtx.beginPath();
+      targetCtx.moveTo(points[0][0], points[0][1]);
+      for(let i=1;i<points.length;i++) targetCtx.lineTo(points[i][0], points[i][1]);
+      targetCtx.closePath();
+      targetCtx.fillStyle = fillColor; targetCtx.fill();
+      targetCtx.strokeStyle = strokeColor; targetCtx.lineWidth = 1.3*unit;
+      targetCtx.lineJoin = 'round'; targetCtx.lineCap = 'round';
+      targetCtx.stroke();
+    }
+    function hatch(points, step, color, width){
+      targetCtx.save();
+      targetCtx.beginPath();
+      targetCtx.moveTo(points[0][0], points[0][1]);
+      for(let i=1;i<points.length;i++) targetCtx.lineTo(points[i][0], points[i][1]);
+      targetCtx.closePath(); targetCtx.clip();
+      targetCtx.strokeStyle = color; targetCtx.lineWidth = width*unit;
+      const span = W+H;
+      for(let i=-span; i<span; i+=step*unit){
+        targetCtx.beginPath(); targetCtx.moveTo(i,0); targetCtx.lineTo(i+span,span); targetCtx.stroke();
+      }
+      targetCtx.restore();
+    }
+
+    targetCtx.clearRect(0,0,W,H);
+    targetCtx.save();
+    const iran = toPx(HORMUZ_IRAN), arabia = toPx(HORMUZ_ARABIA), strait = toPx(HORMUZ_STRAIT);
+
+    land(iran, 'rgba(205,200,175,0.20)', 'rgba(120,110,100,0.55)');
+    land(arabia, 'rgba(205,200,175,0.20)', 'rgba(120,110,100,0.55)');
+    hatch(iran, 8, 'rgba(120,110,100,0.10)', 0.5);
+    hatch(arabia, 8, 'rgba(120,110,100,0.10)', 0.5);
+    hatch(strait, 6, 'rgba(150,150,150,0.09)', 0.5);
+
+    // острова (Кешм, Хормоз)
+    targetCtx.fillStyle = 'rgba(205,200,175,0.25)';
+    targetCtx.strokeStyle = 'rgba(120,110,100,0.45)';
+    targetCtx.lineWidth = 1*unit;
+    HORMUZ_ISLANDS.forEach(isl=>{
+      targetCtx.beginPath();
+      targetCtx.ellipse(px(isl.x), py(isl.y), isl.rx*unit, isl.ry*unit, isl.rot, 0, Math.PI*2);
+      targetCtx.fill(); targetCtx.stroke();
+    });
+    targetCtx.restore();
+  }
+
+  function drawHormuzBackground(){
+    // просто вставляем уже готовый (пересчитанный при resize) набросок — дёшево для каждого кадра
+    ctx.drawImage(bgCanvas, 0, 0, COLS*cellSize, ROWS*cellSize);
+  }
+
   // ---------- drawing ----------
   function draw(){
     if(!grid) return; // грид ещё не создан — рисовать нечего
@@ -300,6 +391,8 @@ window.addEventListener('error', function(e){
     ctx.clearRect(0,0,W,H);
     ctx.fillStyle = '#FBF9F3';
     ctx.fillRect(0,0,W,H);
+
+    drawHormuzBackground(); // бледный набросок под клетками и территорией (из офскрин-буфера)
 
     // filled territory
     for(let r=0;r<ROWS;r++){
@@ -647,5 +740,5 @@ window.addEventListener('error', function(e){
   fitCanvas();
 })();
 </script>
-</body>
-</html>
+      </body>
+    </html>
