@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-        <title>Заблокируй Ормуз</title>
-        <!-- шрифты не грузятся из сети: используем системные handwriting/UI-шрифты, чтобы игра работала офлайн -->
-        <script src="https://telegram.org/js/telegram-web-app.js"></script>
-        <style>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Красные флажки</title>
+<!-- шрифты не грузятся из сети: используем системные handwriting/UI-шрифты, чтобы игра работала офлайн -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
   :root{
     --font-hand: 'Kalam','Segoe Print','Bradley Hand','Comic Sans MS',cursive;
     --font-ui: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
@@ -109,78 +109,71 @@
   #overlay p{font-size:14px;margin:4px 0;}
   #restartBtn{margin-top:16px;}
 </style>
-      </head>
-      <body>
-        <div id="app">
-          <h1>Заблокируй <span>Ормуз</span>
-        </h1>
-        <p class="sub" id="subtitle">она же «клетка на клетку» — тетрадный лист в клеточку</p>
-        <div id="menu">
-          <button class="modebtn blue" data-mode="ai">🤖 Против компьютера
-            <small>вы — синий, начинаете справа-снизу</small>
-          </button>
-          <button class="modebtn red" data-mode="hotseat">🧑‍🤝‍🧑 Один на один
-            <small>по очереди на одном устройстве</small>
-          </button>
-          <p class="note">Можно играть на одном экране по очереди, либо против компьютера.</p>
-          </div>
-          <div id="game">
-            <div id="turnbar">
-              <span id="turnLabel" class="whoTurn p1">Ход: Игрок 1</span>
-              <span id="roundLabel" style="color:var(--muted);font-size:13px;">
-              </span>
-            </div>
-            <div id="board-wrap">
-              <div id="holes">
-              </div>
-              <canvas id="board">
-              </canvas>
-            </div>
-            <div id="status">
-            </div>
-            <div id="panel">
-              <div id="dice">
-                <canvas id="die1" width="52" height="52">
-                </canvas>
-                <canvas id="die2" width="52" height="52">
-                </canvas>
-                <button class="btn" id="rollBtn">🎲 Бросить</button>
-                <button class="btn iconbtn" id="rotBtn" style="display:none;" aria-label="Повернуть" title="Повернуть">↻</button>
-                <button class="btn primary" id="confirmBtn" style="display:none;">✓ Поставить</button>
-              </div>
-            </div>
-            <div id="scorewrap">
-              <div id="scorebar">
-                <div id="score-p1" style="width:0%">
-                </div>
-                <div id="score-p2" style="width:0%">
-                </div>
-              </div>
-              <div id="scoretext">
-                <span id="scoretxt-p1" style="color:var(--ink-blue)">
-                </span>
-                <span id="scoretxt-p2" style="color:var(--ink-red)">
-                </span>
-              </div>
-            </div>
-            <button class="btn ghost" id="giveupBtn" style="font-size:11px;flex:0 0 auto;">завершить партию</button>
-          </div>
-        </div>
-        <div id="overlay">
-          <div class="card">
-            <h2 id="overTitle">Партия окончена</h2>
-            <p id="overScore">
-            </p>
-            <p id="overWinner" style="font-weight:700;">
-            </p>
-            <button class="btn primary" id="restartBtn">Сыграть ещё раз</button>
-          </div>
-        </div>
-        <div id="debugBanner" style="display:none;position:fixed;left:8px;right:8px;top:8px;z-index:999;
-          background:#C23B3B;color:#fff;font-family:monospace;font-size:12px;padding:10px 12px;
-          border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.4);">
-        </div>
-        <script>
+</head>
+<body>
+<div id="app">
+  <h1>Красные <span>флажки</span></h1>
+  <p class="sub" id="subtitle">она же «клетка на клетку» — тетрадный лист в клеточку</p>
+
+  <div id="menu">
+    <button class="modebtn blue" data-mode="ai">🤖 Против компьютера
+      <small>вы — синий, начинаете справа-снизу</small>
+    </button>
+    <button class="modebtn red" data-mode="hotseat">🧑‍🤝‍🧑 Один на один
+      <small>по очереди на одном устройстве</small>
+    </button>
+    <p class="note">Настоящую игру по Bluetooth/Wi-Fi между двумя телефонами тут не сделать — окно артефакта
+    не умеет соединять два устройства напрямую. Зато можно играть на одном экране по очереди, либо против компьютера.</p>
+  </div>
+
+  <div id="game">
+    <div id="turnbar">
+      <span id="turnLabel" class="whoTurn p1">Ход: Игрок 1</span>
+      <span id="roundLabel" style="color:var(--muted);font-size:13px;"></span>
+    </div>
+
+    <div id="board-wrap">
+      <div id="holes"></div>
+      <canvas id="board"></canvas>
+    </div>
+
+    <div id="status"></div>
+
+    <div id="panel">
+      <div id="dice">
+        <canvas id="die1" width="52" height="52"></canvas>
+        <canvas id="die2" width="52" height="52"></canvas>
+        <button class="btn" id="rollBtn">🎲 Бросить</button>
+        <button class="btn iconbtn" id="rotBtn" style="display:none;" aria-label="Повернуть" title="Повернуть">↻</button>
+        <button class="btn primary" id="confirmBtn" style="display:none;">✓ Поставить</button>
+      </div>
+    </div>
+
+    <div id="scorewrap">
+      <div id="scorebar"><div id="score-p1" style="width:0%"></div><div id="score-p2" style="width:0%"></div></div>
+      <div id="scoretext">
+        <span id="scoretxt-p1" style="color:var(--ink-blue)"></span>
+        <span id="scoretxt-p2" style="color:var(--ink-red)"></span>
+      </div>
+    </div>
+    <button class="btn ghost" id="giveupBtn" style="font-size:11px;flex:0 0 auto;">завершить партию</button>
+  </div>
+</div>
+
+<div id="overlay">
+  <div class="card">
+    <h2 id="overTitle">Партия окончена</h2>
+    <p id="overScore"></p>
+    <p id="overWinner" style="font-weight:700;"></p>
+    <button class="btn primary" id="restartBtn">Сыграть ещё раз</button>
+  </div>
+</div>
+
+<div id="debugBanner" style="display:none;position:fixed;left:8px;right:8px;top:8px;z-index:999;
+    background:#C23B3B;color:#fff;font-family:monospace;font-size:12px;padding:10px 12px;
+    border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.4);"></div>
+
+<script>
 window.addEventListener('error', function(e){
   // ошибки из чужого скрипта telegram-web-app.js (например, когда страница
   // открыта не внутри настоящего Telegram-клиента, или SDK асинхронно падает
@@ -194,7 +187,8 @@ window.addEventListener('error', function(e){
   b.onclick = function(){ b.style.display='none'; };
 });
 </script>
-        <script>
+
+<script>
 (function(){
   // Стандартный тетрадный лист — 40 клеток в длину, 34 в ширину (1360 клеток).
   // На телефоне это слишком много для одного экрана, поэтому берём ровно 1/4 листа
@@ -309,19 +303,39 @@ window.addEventListener('error', function(e){
   window.addEventListener('orientationchange', ()=>setTimeout(fitCanvas,150));
 
   // ---------- фоновый набросок: Ормузский пролив, бледным карандашом ----------
-  // координаты заданы в "четвертных" клетках листа (17×20); на полном листе (34×40)
-  // масштабируются вдвое вместе с сеткой, чтобы силуэт оставался тем же.
-  const HORMUZ_IRAN   = [[0,0],[17,0],[17,4],[15,5],[13,6],[12,7],[11,8],[10.3,8.6],
-                          [9.5,8.1],[8.4,7.2],[7.2,6.1],[5.3,4.6],[3,3],[1,1],[0,0]];
-  const HORMUZ_ARABIA = [[0,20],[0,17],[2,16],[4,15],[6,14],[8,13],[9,12],[9.3,10.4],
-                          [9.8,9.4],[10.3,9.6],[10.7,10.5],[11,12],[13,13.4],[15,15],
-                          [17,16],[17,20],[0,20]];
-  const HORMUZ_STRAIT = [[2,5.5],[4,6.5],[6,7.5],[8,8.3],[9.6,8.8],[11,9.5],[13,10.7],
-                          [15,12.1],[17,13.1],[17,14.1],[15,13.1],[13,11.7],[11,10.5],
-                          [9.6,9.6],[8,9.2],[6,8.5],[4,7.5],[2,6.5]];
+  // координаты — трассировка берегов (WorldAtlas), в "четвертных" клетках листа (17×20);
+  // на полном листе (34×40) масштабируются вдвое вместе с сеткой.
+  const HORMUZ_IRAN = [
+    [0,0],[0,9.3],[0.17,7.11],[2.24,7.11],[2.72,6.71],[4.13,6.71],[4.46,6.85],
+    [4.49,6.69],[5.22,6.57],[5.24,6.21],[7.11,6.01],[8.07,4.92],[8.1,3.54],
+    [10.39,3.62],[10.79,4.1],[10.81,4.38],[11.22,4.52],[11.66,5.81],[11.73,7.72],
+    [12.25,8.9],[12.42,10.59],[12.7,11.1],[13.79,11.43],[14.69,11.43],[14.8,11.83],
+    [15.68,11.83],[16.08,12.36],[16.81,12.42],[16.83,13.06],[16.98,13.06],[16.98,0]
+  ];
+  const HORMUZ_ARABIA = [
+    [8.93,8.17],[8.62,8.2],[8.52,8.79],[7.89,8.79],[7.65,9.1],[7.6,9.72],
+    [7.37,10.42],[6.52,11.57],[5.71,12.22],[5.48,12.72],[5.05,12.75],[4.77,13.48],
+    [4.2,14.04],[2.81,15.87],[1.98,16.4],[1.61,16.83],[0.14,16.8],[0.14,13.71],
+    [0,13.71],[0,19.97],[10.86,19.97],[10.86,19.75],[9.52,18.01],[8.95,16.54],
+    [8.85,16.04],[8.69,15.81],[8.67,11.15],[8.9,10.37]
+  ];
+  const HORMUZ_STRAIT_WEST = [
+    [0,9.8],[0.17,7.6],[2.24,7.6],[2.72,7.2],[4.13,7.2],[4.49,7.19],[5.24,6.7],
+    [7.11,6.5],[8.07,5.4],[8.1,4.0],[9.5,4.05],[9.3,6.5],[8.93,7.67],[8.62,7.7],
+    [8.52,8.29],[7.89,8.29],[7.65,8.6],[7.6,9.22],[7.37,9.92],[6.52,11.07],
+    [5.71,11.72],[5.48,12.22],[5.05,12.25],[4.77,12.98],[4.2,13.54],[2.81,15.37],
+    [1.98,15.9],[1.61,16.33],[0.14,16.3]
+  ];
+  const HORMUZ_STRAIT_EAST = [
+    [11.73,8.2],[12.25,9.4],[12.42,11.1],[12.7,11.6],[13.79,11.9],[14.69,11.9],
+    [14.8,12.3],[15.68,12.3],[16.08,12.9],[16.81,12.9],[16.83,13.6],[16.98,13.6],
+    [17,17],[10.86,19.25],[9.52,17.51],[8.95,16.04],[8.85,15.54],[8.69,15.31],
+    [8.67,10.65],[8.9,9.87],[8.93,7.67]
+  ];
   const HORMUZ_ISLANDS = [
-    {x:8.3,y:9.6, rx:22,ry:8, rot:-0.3},   // Кешм
-    {x:10.1,y:10.5, rx:6,ry:6, rot:0}       // Хормоз
+    {x:4,   y:7.6, rx:34, ry:8, rot:-0.1}, // Кешм
+    {x:8.2, y:6.0, rx:5,  ry:5, rot:0},    // Хормоз
+    {x:9.3, y:5.8, rx:4,  ry:4, rot:0}     // Ларак
   ];
 
   function renderHormuzBackground(targetCtx){
@@ -358,15 +372,17 @@ window.addEventListener('error', function(e){
 
     targetCtx.clearRect(0,0,W,H);
     targetCtx.save();
-    const iran = toPx(HORMUZ_IRAN), arabia = toPx(HORMUZ_ARABIA), strait = toPx(HORMUZ_STRAIT);
+    const iran = toPx(HORMUZ_IRAN), arabia = toPx(HORMUZ_ARABIA);
+    const straitWest = toPx(HORMUZ_STRAIT_WEST), straitEast = toPx(HORMUZ_STRAIT_EAST);
 
     land(iran, 'rgba(205,200,175,0.20)', 'rgba(120,110,100,0.55)');
     land(arabia, 'rgba(205,200,175,0.20)', 'rgba(120,110,100,0.55)');
     hatch(iran, 8, 'rgba(120,110,100,0.10)', 0.5);
     hatch(arabia, 8, 'rgba(120,110,100,0.10)', 0.5);
-    hatch(strait, 6, 'rgba(150,150,150,0.09)', 0.5);
+    hatch(straitWest, 6, 'rgba(150,150,150,0.09)', 0.5);
+    hatch(straitEast, 6, 'rgba(150,150,150,0.09)', 0.5);
 
-    // острова (Кешм, Хормоз)
+    // острова (Кешм, Хормоз, Ларак)
     targetCtx.fillStyle = 'rgba(205,200,175,0.25)';
     targetCtx.strokeStyle = 'rgba(120,110,100,0.45)';
     targetCtx.lineWidth = 1*unit;
@@ -416,6 +432,11 @@ window.addEventListener('error', function(e){
     for(let r=0;r<=ROWS;r++){
       ctx.beginPath(); ctx.moveTo(0,r*cellSize+0.5); ctx.lineTo(W,r*cellSize+0.5); ctx.stroke();
     }
+
+    // margin line (decorative, like a notebook page)
+    ctx.strokeStyle = '#D9505F55';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(cellSize*1.4,0); ctx.lineTo(cellSize*1.4,H); ctx.stroke();
 
     // home corner markers
     drawHomeMark(home[1].r, home[1].c, '#28437A');
@@ -734,5 +755,5 @@ window.addEventListener('error', function(e){
   fitCanvas();
 })();
 </script>
-      </body>
-    </html>
+</body>
+</html>
