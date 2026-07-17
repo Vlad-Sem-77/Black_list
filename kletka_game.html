@@ -432,11 +432,6 @@ window.addEventListener('error', function(e){
       ctx.beginPath(); ctx.moveTo(0,r*cellSize+0.5); ctx.lineTo(W,r*cellSize+0.5); ctx.stroke();
     }
 
-    // margin line (decorative, like a notebook page)
-    ctx.strokeStyle = '#D9505F55';
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(cellSize*1.4,0); ctx.lineTo(cellSize*1.4,H); ctx.stroke();
-
     // home corner markers
     drawHomeMark(home[1].r, home[1].c, '#28437A');
     drawHomeMark(home[2].r, home[2].c, '#A5273A');
