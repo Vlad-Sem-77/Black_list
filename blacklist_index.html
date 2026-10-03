@@ -35,6 +35,65 @@ body{
 #app{max-width:640px;margin:0 auto;min-height:100vh;background:var(--paper);position:relative;display:flex;flex-direction:column;}
 
 /* ===== HEADER ===== */
+.eyebrow-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.game-btn{
+  font-size:19px;
+  line-height:1;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:3px 5px;
+  border-radius:6px;
+  flex-shrink:0;
+}
+.game-btn:hover{background:var(--paper-raised);}
+
+.game-modal-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(28,35,51,0.55);
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+}
+.game-modal-overlay.open{display:flex;}
+.game-modal-box{
+  width:94vw;
+  max-width:480px;
+  height:80vh;
+  background:var(--paper);
+  border-radius:8px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 10px 40px rgba(0,0,0,0.35);
+}
+.game-modal-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 14px;
+  border-bottom:1px solid var(--rule);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  color:var(--ink-soft);
+}
+.game-modal-close{
+  background:none;border:none;cursor:pointer;
+  font-size:18px;color:var(--ink-soft);
+  padding:2px 8px;
+}
+.game-modal-close:hover{color:var(--ink);}
+.game-modal-box iframe{
+  flex:1;border:none;width:100%;
+}
+
 header.top{
   padding:28px 20px 18px;
   border-bottom:1px solid var(--rule);
@@ -335,7 +394,10 @@ footer.app-footer{
   <!-- LIST VIEW -->
   <div id="listView">
     <header class="top">
-      <p class="eyebrow">Реестр · Compliance Lists</p>
+      <div class="eyebrow-row">
+        <p class="eyebrow">Реестр · Compliance Lists</p>
+        <button class="game-btn" onclick="openGame()" aria-label="Игра">🎲🎲</button>
+      </div>
       <h1 class="title">Чёрные списки стран</h1>
       <p class="subtitle">Свод регуляторных перечней РФ: ФАТФ, офшоры, автообмен налоговой информацией, недружественные государства.</p>
       <div class="search-wrap">
@@ -418,6 +480,16 @@ footer.app-footer{
     </div>
   </div>
 
+</div>
+
+<div class="game-modal-overlay" id="gameModal">
+  <div class="game-modal-box">
+    <div class="game-modal-head">
+      <span>ИГРА</span>
+      <button class="game-modal-close" onclick="closeGame()">✕</button>
+    </div>
+    <iframe id="gameFrame" src="about:blank"></iframe>
+  </div>
 </div>
 
 <script>
@@ -692,6 +764,20 @@ function navPush(state){
 
 function goBack(){
   if(NAV_STACK.length === 0) return; // already at the list screen
+
+  const top = NAV_STACK[NAV_STACK.length - 1];
+  if(top.view === 'game'){
+    // The game is an overlay on whatever screen was already showing —
+    // closing it should not re-render/change that underlying screen.
+    NAV_STACK.pop();
+    hideGameModal();
+    try {
+      if(history.state && history.state !== (NAV_STACK[NAV_STACK.length-1] || {view:'list'})){ history.back(); }
+    } catch(e){}
+    syncBackButton();
+    return;
+  }
+
   NAV_STACK.pop();
   const prev = NAV_STACK[NAV_STACK.length - 1] || {view: 'list'};
   applyState(prev);
@@ -700,6 +786,27 @@ function goBack(){
     // without triggering a duplicate render via popstate.
     if(history.state && history.state !== prev){ history.back(); }
   } catch(e){}
+  syncBackButton();
+}
+
+function hideGameModal(){
+  document.getElementById('gameModal').classList.remove('open');
+  document.getElementById('gameFrame').src = 'about:blank';
+}
+
+function openGame(){
+  document.getElementById('gameFrame').src = 'game.html';
+  document.getElementById('gameModal').classList.add('open');
+  navPush({view:'game'});
+}
+
+function closeGame(){
+  // Mirrors goBack()'s game-branch, for the explicit ✕ button.
+  if(NAV_STACK.length > 0 && NAV_STACK[NAV_STACK.length-1].view === 'game'){
+    NAV_STACK.pop();
+  }
+  hideGameModal();
+  try { if(history.state && history.state.view === 'game'){ history.back(); } } catch(e){}
   syncBackButton();
 }
 
@@ -712,10 +819,15 @@ function showDetail(){ goBack(); }
 try {
   history.replaceState({view:'list'}, '');
   window.addEventListener('popstate', (e) => {
+    const wasGame = NAV_STACK.length > 0 && NAV_STACK[NAV_STACK.length-1].view === 'game';
     if(NAV_STACK.length > 0){
       NAV_STACK.pop();
     }
-    applyState(e.state || {view:'list'});
+    if(wasGame){
+      hideGameModal();
+    } else {
+      applyState(e.state || {view:'list'});
+    }
     syncBackButton();
   });
 } catch(e){}
